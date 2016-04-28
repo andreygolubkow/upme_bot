@@ -1,66 +1,67 @@
+# -*- coding: utf-8 -*-
 import shelve
-import base
-
-db = shelve.open("userdo.db")
+from base import *
+from weather import *
+tdb = shelve.open("userdo.db")
 
 def isweather(message):
 	if message.find("weather")!=-1:
-		return (true)
+		return (1)
 	else:
-		return (false)
+		return (0)
 
 def isnews(message):
 	if message.find("news")!=-1:
-		return(true)
+		return(1)
 	elif message.find("newspaper")!=-1:
-		return(true)
+		return(1)
 	else:
-		return(false)
+		return(0)
 
 def isnote(message):
 	s=message.split(" ",1)
 	if s=="note":
-		return(true)
+		return(1)
 	elif s=="remind":
-		return(true)
+		return(1)
 	elif s=="write:":
-		return(true)
+		return(1)
 	else:
-		return(false)
+		return(0)
 
 def idontknown(user):
 	return("I cant't help you")
 
 def isstart(message):
         if message=="/start":
-                return(true)
+                return(1)
         else:
-                return(false)
+                return(0)
 
 def start(user):
-        db[user+'_do']='scity'
+	setuserlang(user,'en')
+	setusercity(user,'moscow')
+        tdb[user+'_do']='scity'
         return("Привет! Введи свой город на английском. Hi! Enter your city in English")
 
 def do(user,message):
 	if isweather(message.lower()):
-		return weather(user)
+		return weather(readcity(user),readlang(user))
 	elif isnews(message.lower()):
 		return news(user)
 	elif isnote(message.lower()):
 		return(note(user,message))
-	elif isstart(message):
-                return(start(user))
 	else:
 		return(idontknown(user))
 
 def setlang(user,lang):
         if lang=='en':
                 setuserlang(user,'en')
-                db[user+'_do']='none'
+                tdb[user+'_do']='none'
                 return("Ok.")
         elif lang=='ru':
                 setuserlang(user,'ru')
-                db[user+'_do']='none'
+                tdb[user+'_do']='none'
                 return("Ok.")
         else:
                 return("Available language ru or en")
@@ -71,18 +72,23 @@ def setcity(user,city):
                 
                 
 def onmessage(user,message):
-        if db[user+'_do']=='slang':
-                return(setlang(user,message.lower()))
-        elif db[user+'_do']=='scity':
-                db[user+'_do']='slang'
+	if isstart(message):
+		return(start(user))
+	elif tdb[user+'_do']=='scity':
+                tdb[user+'_do']='slang'
                 return(setcity(user,message.lower())+" Теперь выбери язык: ru или en.Now choose your language: ru or en.")
-        elif db[user+'_do']=='lang':
+        elif tdb[user+'_do']=='slang':
                 return(setlang(user,message.lower()))
-        elif db[user+'_do']=='city':
+        elif tdb[user+'_do']=='lang':
+                return(setlang(user,message.lower()))
+        elif tdb[user+'_do']=='city':
                 return(setcity(user,message.lower()))
         else:
+		print (tdb[user+'_do'])
+		print (readcity(user))
+		print (readlang(user))
                 return(do(user,message))
         
 
-db.close;
+tdb.close;
                 

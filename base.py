@@ -1,4 +1,5 @@
 import shelve
+
 db = shelve.open("base.db")
 
 def readlang(user):
@@ -8,12 +9,14 @@ def readlang(user):
         return('en')
 
 def readcity(user):
-    return (db[user+'_city'])
+    return (str(db[user+'_city']))
 
 def setuserlang(user,lang):
     db[user+'_lang']=lang
 
+
 def setusercity(user,city):
     db[user+'_city']=city
+
 
 db.close
